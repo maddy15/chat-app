@@ -18,3 +18,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::post('/getFriends', 'HomeController@getFriends');
+Route::post('/session/create', 'SessionController@create');
+Route::post('/send/{session}', 'ChatController@send');
+Route::post('/send/{session}/chats', 'ChatController@chats');
+Route::post('/session/{session}/read', 'ChatController@read');
