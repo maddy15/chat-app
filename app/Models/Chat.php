@@ -10,8 +10,14 @@ class Chat extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'read_at' => 'datetime'
+    ];
     public function message(){
         return $this->belongsTo('App\Models\Message');
+    }
+    public function session(){
+        return $this->belongsTo('App\Models\Session');
     }
 
     public function markAsRead(){

@@ -19,7 +19,7 @@
             </div>
             <div class="card-body" v-chat-scroll>
                 <div class="card-text" v-for="chat in chats" :key="chat.id">
-                    <p :class="{'pull-left' : chat.type,'pull-right' : !chat.type}" v-if="chat.messages.content">{{ chat.messages.content }}</p>
+                    <p :class="{'pull-left' : chat.type,'pull-right' : !chat.type,'text-success':chat.read_at != ''}" v-if="chat.messages.content">{{ chat.messages.content }}</p>
                     <div class="clearfix"></div>
                 </div>
             </div>
@@ -60,7 +60,9 @@
                     
                     axios.post(`send/${this.friend.session.id}`,{message:this.message,to_user:this.friend.id})
                     .then(res => {
+                        console.log('message',res.data);
                         this.chats.push(res.data.data[0]);
+                        this.chats[this.chats.length -1].id = res.data.data[0].id;
                         this.message = '';
                     });
                 }
@@ -80,8 +82,14 @@
             this.getMessages();
             this.read();
             Echo.private('Chat.' + this.friend.session.id).listen('PrivateEvent',(e)=>{
-                this.read();
+                this.friend.session.open ? this.read() : "";
+                if(e.chat.user_id != e.to_user) e.chat.type = 1;
                 this.chats.push(e.chat);
+            });
+
+
+            Echo.private('Chat.' + this.friend.session.id).listen('MsgReadEvent',(e)=>{
+                this.chats.forEach(chat => chat.id == e.chat.id ? chat.read_at = e.chat.read_at : "");
             });
         },
     }

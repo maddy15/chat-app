@@ -7,6 +7,7 @@ use App\Models\Session;
 use App\Models\Message;
 use App\Http\Resources\ChatResource;
 use App\Events\PrivateEvent;
+use App\Events\MsgReadEvent;
 
 class ChatController extends Controller
 {
@@ -18,8 +19,8 @@ class ChatController extends Controller
 
         $chat = $message->createForSend($session->id);
         $message->createForRecieve($session->id,$request->to_user);
-
-        broadcast(new PrivateEvent($message->content,$chat));
+        
+        broadcast(new PrivateEvent($message->content,$chat,$request->to_user));
         
         return ChatResource::collection($message->chats->where('user_id',auth()->id()));
     }
@@ -34,6 +35,7 @@ class ChatController extends Controller
 
         foreach($chats as $chat){
             $chat->markAsRead();
+            broadcast(new MsgReadEvent(new ChatResource($chat),$chat->session_id));
         }
         
     }

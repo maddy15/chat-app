@@ -80,6 +80,7 @@ import Message from './Message';
             listenForEverySession(friend){
                 Echo.private('Chat.' + friend.session.id).listen('PrivateEvent',(e)=>{
                     if(!friend.session.open) {
+                        console.log('asd',e);
                         this.playSound();
                         friend.session.unreadCount++;
                     }

@@ -9,24 +9,22 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\Http\Resources\ChatResource;
 
-class PrivateEvent implements ShouldBroadcast
+class MsgReadEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $content;
     public $chat;
-    public $to_user;
+    private $session_id;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($content,$chat,$to_user)
+    public function __construct($chat,$session_id)
     {
-        $this->content = $content;
-        $this->chat = new ChatResource($chat);
-        $this->to_user = $to_user;
+        $this->chat = $chat;
+        $this->session_id = $session_id;
         $this->dontBroadcastToCurrentUser();
     }
 
@@ -37,6 +35,6 @@ class PrivateEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('Chat.' . $this->chat['session_id']);
+        return new PrivateChannel('Chat.'.$this->session_id);
     }
 }

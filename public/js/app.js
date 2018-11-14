@@ -57620,6 +57620,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             Echo.private('Chat.' + friend.session.id).listen('PrivateEvent', function (e) {
                 if (!friend.session.open) {
+                    console.log('asd', e);
                     _this2.playSound();
                     friend.session.unreadCount++;
                 }
@@ -57823,7 +57824,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             if (this.message) {
 
                 axios.post('send/' + this.friend.session.id, { message: this.message, to_user: this.friend.id }).then(function (res) {
+                    console.log('message', res.data);
                     _this.chats.push(res.data.data[0]);
+                    _this.chats[_this.chats.length - 1].id = res.data.data[0].id;
                     _this.message = '';
                 });
             }
@@ -57845,8 +57848,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.getMessages();
         this.read();
         Echo.private('Chat.' + this.friend.session.id).listen('PrivateEvent', function (e) {
-            _this3.read();
+            _this3.friend.session.open ? _this3.read() : "";
+            if (e.chat.user_id != e.to_user) e.chat.type = 1;
             _this3.chats.push(e.chat);
+        });
+
+        Echo.private('Chat.' + this.friend.session.id).listen('MsgReadEvent', function (e) {
+            _this3.chats.forEach(function (chat) {
+                return chat.id == e.chat.id ? chat.read_at = e.chat.read_at : "";
+            });
         });
     }
 });
@@ -57944,7 +57954,11 @@ var render = function() {
               ? _c(
                   "p",
                   {
-                    class: { "pull-left": chat.type, "pull-right": !chat.type }
+                    class: {
+                      "pull-left": chat.type,
+                      "pull-right": !chat.type,
+                      "text-success": chat.read_at != ""
+                    }
                   },
                   [_vm._v(_vm._s(chat.messages.content))]
                 )
