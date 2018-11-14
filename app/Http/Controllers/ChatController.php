@@ -39,4 +39,10 @@ class ChatController extends Controller
         }
         
     }
+
+    public function clear(Session $session){
+        $session->deleteChats();
+        $session->chats->count() == 0 ? $session->deleteMessages() : '';
+        return response('Cleared',200);
+    }
 }

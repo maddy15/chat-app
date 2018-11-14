@@ -19,7 +19,12 @@
             </div>
             <div class="card-body" v-chat-scroll>
                 <div class="card-text" v-for="chat in chats" :key="chat.id">
-                    <p :class="{'pull-left' : chat.type,'pull-right' : !chat.type,'text-success':chat.read_at != ''}" v-if="chat.messages.content">{{ chat.messages.content }}</p>
+                    <p :class="{'pull-left' : chat.type,'pull-right' : !chat.type,'text-success':chat.read_at != ''}" v-if="chat.messages.content">
+                        {{ chat.messages.content }}
+                        <br>
+                        <span style="font-size:10px">{{ chat.read_at }}</span>
+                    </p>
+                      
                     <div class="clearfix"></div>
                 </div>
             </div>
@@ -49,7 +54,13 @@
                 this.$emit('openClose');
             },
             clear(){
-                this.chats = [];
+
+                
+                axios.post(`session/${this.friend.session.id}/clear`)
+                .then(res => {
+                    console.log(res.data);
+                    this.chats = [];
+                });
             },
             block(){
                 this.isBlock = !this.isBlock;

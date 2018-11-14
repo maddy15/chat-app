@@ -57797,6 +57797,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     props: ['friend'],
@@ -57813,29 +57818,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.$emit('openClose');
         },
         clear: function clear() {
-            this.chats = [];
+            var _this = this;
+
+            axios.post('session/' + this.friend.session.id + '/clear').then(function (res) {
+                console.log(res.data);
+                _this.chats = [];
+            });
         },
         block: function block() {
             this.isBlock = !this.isBlock;
         },
         send: function send() {
-            var _this = this;
+            var _this2 = this;
 
             if (this.message) {
 
                 axios.post('send/' + this.friend.session.id, { message: this.message, to_user: this.friend.id }).then(function (res) {
                     console.log('message', res.data);
-                    _this.chats.push(res.data.data[0]);
-                    _this.chats[_this.chats.length - 1].id = res.data.data[0].id;
-                    _this.message = '';
+                    _this2.chats.push(res.data.data[0]);
+                    _this2.chats[_this2.chats.length - 1].id = res.data.data[0].id;
+                    _this2.message = '';
                 });
             }
         },
         getMessages: function getMessages() {
-            var _this2 = this;
+            var _this3 = this;
 
             axios.post('/send/' + this.friend.session.id + '/chats').then(function (res) {
-                _this2.chats = res.data.data;
+                _this3.chats = res.data.data;
             });
         },
         read: function read() {
@@ -57843,18 +57853,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
     },
     created: function created() {
-        var _this3 = this;
+        var _this4 = this;
 
         this.getMessages();
         this.read();
         Echo.private('Chat.' + this.friend.session.id).listen('PrivateEvent', function (e) {
-            _this3.friend.session.open ? _this3.read() : "";
+            _this4.friend.session.open ? _this4.read() : "";
             if (e.chat.user_id != e.to_user) e.chat.type = 1;
-            _this3.chats.push(e.chat);
+            _this4.chats.push(e.chat);
         });
 
         Echo.private('Chat.' + this.friend.session.id).listen('MsgReadEvent', function (e) {
-            _this3.chats.forEach(function (chat) {
+            _this4.chats.forEach(function (chat) {
                 return chat.id == e.chat.id ? chat.read_at = e.chat.read_at : "";
             });
         });
@@ -57960,7 +57970,18 @@ var render = function() {
                       "text-success": chat.read_at != ""
                     }
                   },
-                  [_vm._v(_vm._s(chat.messages.content))]
+                  [
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(chat.messages.content) +
+                        "\n                    "
+                    ),
+                    _c("br"),
+                    _vm._v(" "),
+                    _c("span", { staticStyle: { "font-size": "10px" } }, [
+                      _vm._v(_vm._s(chat.read_at))
+                    ])
+                  ]
                 )
               : _vm._e(),
             _vm._v(" "),
